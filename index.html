@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>愉之香珈琲 スタッフ応募</title>
+<style>
+  :root {
+    --bg: #f7f1ea;
+    --card: #ffffff;
+    --ink: #3b2a20;
+    --muted: #8a7566;
+    --line: #e6dacd;
+    --accent: #7a4a2a;
+    --accent-ink: #ffffff;
+    --soft: #fbf6f0;
+    --error: #b3261e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { text-align: center; margin-bottom: 20px; }
+  header h1 { font-size: 22px; margin: 0; letter-spacing: .08em; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 18px; }
+  h2 { font-size: 16px; margin: 0 0 4px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  h2.next { margin-top: 28px; }
+  label { display: block; font-weight: 600; font-size: 14px; margin: 16px 0 6px; }
+  .req { color: var(--accent); font-size: 12px; margin-left: 4px; }
+  input {
+    width: 100%; font: inherit; font-size: 16px; color: var(--ink);
+    padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff;
+  }
+  input.age { width: 120px; }
+  .unit { margin-left: 6px; }
+  input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .note {
+    background: var(--soft); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; font-size: 13px; margin: 12px 0 4px;
+  }
+  .day { padding: 12px 0; border-bottom: 1px dashed var(--line); }
+  .day:last-child { border-bottom: 0; }
+  .day-name { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .day-name small { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 6px; }
+  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 6px; }
+  .slots button {
+    font: inherit; font-size: 14px; padding: 8px 4px; border-radius: 10px;
+    border: 1px solid var(--line); background: #fff; color: var(--ink); cursor: pointer;
+  }
+  .slots button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .hint { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+  .error { color: var(--error); font-size: 14px; margin-top: 14px; min-height: 1em; }
+  .submit {
+    width: 100%; margin-top: 20px; padding: 14px; font: inherit; font-size: 16px; font-weight: 700;
+    background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 12px; cursor: pointer;
+  }
+  .submit:disabled { opacity: .5; cursor: wait; }
+  .done { text-align: center; }
+  .done h2 { border: 0; font-size: 20px; margin: 0 0 8px; }
+  .info { margin-top: 20px; font-size: 13px; color: var(--muted); text-align: center; }
+  .demo { background: #fff6d6; border: 1px solid #ecd98b; border-radius: 10px; padding: 8px 12px; font-size: 13px; margin-bottom: 14px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>愉之香珈琲</h1>
+    <p>スタッフ応募フォーム</p>
+  </header>
+
+  <div id="demo" class="demo" hidden>プレビュー表示です（応募は送信されません）</div>
+
+  <form id="form" class="card" novalidate>
+    <h2>応募者情報</h2>
+
+    <label for="name">氏名<span class="req">必須</span></label>
+    <input type="text" id="name" autocomplete="name" maxlength="50" placeholder="愉之香 花子" required>
+
+    <label for="age">年齢<span class="req">必須</span></label>
+    <input type="number" id="age" class="age" inputmode="numeric" min="15" max="99" required><span class="unit">歳</span>
+
+    <label for="address">住所<span class="req">必須</span></label>
+    <input type="text" id="address" autocomplete="street-address" maxlength="150" placeholder="〇〇市〇〇町1-2-3" required>
+
+    <label for="phone">電話番号<span class="req">必須</span></label>
+    <input type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="090-1234-5678" required>
+
+    <h2 class="next">勤務できる曜日・時間帯</h2>
+    <div class="note">
+      働ける曜日の、入れる時間帯をすべて選んでください（複数選択できます）。<br>
+      <strong>ここで決まるわけではありません。</strong>「最大でこのくらい入れる」という目安で大丈夫です。詳しくは面接でお伺いします。
+    </div>
+    <div id="days"></div>
+
+    <input type="text" id="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <div id="error" class="error" role="alert"></div>
+    <button type="submit" id="submit" class="submit">応募する</button>
+  </form>
+
+  <div id="done" class="card done" hidden>
+    <h2>ご応募ありがとうございます</h2>
+    <p id="doneWho"></p>
+    <p class="hint">内容を確認のうえ、お店からお電話でご連絡します。<br>しばらくお待ちください。</p>
+  </div>
+
+  <div class="info">
+    営業時間 6:00〜21:50（L.O. 21:30）<br>
+    定休日 第1水曜日
+  </div>
+</div>
+
+<script>
+  // Apps ScriptのウェブアプリURL（デプロイ後に /exec のURLを入れる。空ならプレビュー動作）
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbyasn6kxJ-BFePk08P6rwKY-TkuhXr1pAWk3qVakJWssjWwAZ2F3UjphhplmJnfRUGB/exec';
+
+  const DAYS = ['月', '火', '水', '木', '金', '土', '日'];
+  const SLOTS = ['6:00〜10:00', '9:00〜15:00', '14:00〜19:00', '17:00〜22:00', '19:00〜22:00'];
+
+  const el = (id) => document.getElementById(id);
+  const chosen = {}; // { '月': Set(['6:00〜10:00', ...]) }
+  if (!GAS_URL) el('demo').hidden = false;
+
+  DAYS.forEach((d) => {
+    chosen[d] = new Set();
+    const box = document.createElement('div');
+    box.className = 'day';
+    const head = document.createElement('div');
+    head.className = 'day-name';
+    head.textContent = d + '曜日';
+    if (d === '水') {
+      const s = document.createElement('small');
+      s.textContent = '第1水曜は定休日';
+      head.appendChild(s);
+    }
+    const grid = document.createElement('div');
+    grid.className = 'slots';
+    SLOTS.forEach((t) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = t;
+      b.setAttribute('aria-pressed', 'false');
+      b.setAttribute('aria-label', d + '曜日 ' + t);
+      b.addEventListener('click', () => {
+        if (chosen[d].has(t)) chosen[d].delete(t); else chosen[d].add(t);
+        b.setAttribute('aria-pressed', String(chosen[d].has(t)));
+      });
+      grid.appendChild(b);
+    });
+    box.append(head, grid);
+    el('days').appendChild(box);
+  });
+
+  el('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    el('error').textContent = '';
+    const availability = {};
+    DAYS.forEach((d) => {
+      const list = SLOTS.filter((t) => chosen[d].has(t));
+      if (list.length) availability[d] = list;
+    });
+    const data = {
+      name: el('name').value.trim(),
+      age: el('age').value.trim(),
+      address: el('address').value.trim(),
+      phone: el('phone').value.trim(),
+      availability,
+      website: el('website').value,
+    };
+    if (!data.name) return showError('氏名を入力してください');
+    if (!data.age) return showError('年齢を入力してください');
+    if (!data.address) return showError('住所を入力してください');
+    if (!data.phone) return showError('電話番号を入力してください');
+    if (!Object.keys(availability).length) return showError('勤務できる曜日・時間帯を1つ以上選んでください');
+
+    el('submit').disabled = true;
+    el('submit').textContent = '送信中…';
+    send(data).then((res) => {
+      el('form').hidden = true;
+      el('done').hidden = false;
+      el('doneWho').textContent = res.name + ' 様';
+      window.scrollTo(0, 0);
+    }).catch((err) => {
+      showError(err);
+      el('submit').disabled = false;
+      el('submit').textContent = '応募する';
+    });
+  });
+
+  function send(data) {
+    if (!GAS_URL) return new Promise((r) => setTimeout(() => r({ name: data.name }), 300));
+    // text/plain にすると事前確認なしで Apps Script に届く
+    return fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
+      .catch(() => { throw new Error('通信できませんでした。電波の良い場所でもう一度お試しください'); })
+      .then((r) => r.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(res.error);
+        return res.data;
+      });
+  }
+
+  function showError(err) {
+    el('error').textContent = (err && err.message) ? err.message.replace(/^Error:\s*/, '') : String(err);
+  }
+</script>
+</body>
+</html>
